@@ -31,8 +31,12 @@ from langchain_core.documents.base import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from PIL import Image
 
+from langchain_rag_react_agent.config import get_project_root
+
 # Import custom modules
 from langchain_rag_react_agent.utils.logger import ReActAgentLogger
+
+project_root = get_project_root()
 
 # Module path
 module_path: Path = Path(__file__).resolve()
@@ -41,7 +45,6 @@ module_path: Path = Path(__file__).resolve()
 logger: Logger = ReActAgentLogger.get_logger(module_name=module_path.name)
 
 # Define PDFs and database directories paths
-from langchain_rag_react_agent.config import get_project_root; project_root = get_project_root()
 pdfs_dir: Path = project_root / "pdfs"
 db_dir: Path = project_root / "db"
 store_name: str = "chroma_db_pdf_advanced"
@@ -83,15 +86,11 @@ def load_pdf_documents_advanced(pdfs_dir: Path) -> List[Document]:
                         docs: List[Document] = loader.load()
                         logger.info(f"Loaded with PyPDFLoader: {file_path}")
                     except Exception as fallback_error:
-                        logger.error(
-                            f"PyPDFLoader also failed for {file_path}: {fallback_error}"
-                        )
+                        logger.error(f"PyPDFLoader also failed for {file_path}: {fallback_error}")
                         continue
 
                 # Add OCR processing for images
-                ocr_docs: List[Document] = extract_text_with_ocr(
-                    pdf_path=str(file_path)
-                )
+                ocr_docs: List[Document] = extract_text_with_ocr(pdf_path=str(file_path))
 
                 # Add chart and graph processing
                 chart_docs: List[Document] = extract_charts_and_graphs(str(file_path))
@@ -100,9 +99,7 @@ def load_pdf_documents_advanced(pdfs_dir: Path) -> List[Document]:
                 all_docs: List[Document] = docs + ocr_docs + chart_docs
 
                 for doc in all_docs:
-                    doc.metadata.update(
-                        {"source": file_path.name, "processing_type": "advanced"}
-                    )
+                    doc.metadata.update({"source": file_path.name, "processing_type": "advanced"})
                     documents.append(doc)
 
                 logger.info(
@@ -159,9 +156,7 @@ def extract_text_with_ocr(pdf_path: str) -> List[Document]:
                     pix = None
 
                 except Exception as e:
-                    logger.warning(
-                        f"Error processing image {img_index} on page {page_num}: {e}"
-                    )
+                    logger.warning(f"Error processing image {img_index} on page {page_num}: {e}")
                     continue
 
             if ocr_text.strip():
@@ -257,17 +252,13 @@ def create_advanced_text_chunks(
     documents: List[Document], chunk_size: int, chunk_overlap: int
 ) -> List[Document]:
     """Create text chunks with table-aware splitting."""
-    splitter = TableAwareTextSplitter(
-        chunk_size=chunk_size, chunk_overlap=chunk_overlap
-    )
+    splitter = TableAwareTextSplitter(chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     chunks = splitter.split_documents(documents)
 
     # Enhance chunks with content type context
     enhanced_chunks = create_table_specific_chunks(chunks)
 
-    logger.info(
-        msg=f"Split {len(documents)} documents into {len(enhanced_chunks)} chunks"
-    )
+    logger.info(msg=f"Split {len(documents)} documents into {len(enhanced_chunks)} chunks")
     return enhanced_chunks
 
 
@@ -281,9 +272,7 @@ def create_multimodal_embeddings() -> HuggingFaceEmbeddings:
 
     model_cached = False
     if cache_dir.exists():
-        model_cached = any(
-            model_cache_name in p.name for p in cache_dir.iterdir() if p.is_dir()
-        )
+        model_cached = any(model_cache_name in p.name for p in cache_dir.iterdir() if p.is_dir())
 
     if not model_cached:
         logger.warning(
@@ -320,9 +309,7 @@ def create_table_specific_chunks(documents: List[Document]) -> List[Document]:
             enhanced_content = f"IMAGE TEXT: {doc.page_content}"
         elif content_type == "chart_graph":
             chart_type = doc.metadata.get("chart_type", "unknown")
-            enhanced_content = (
-                f"CHART/GRAPH DATA ({chart_type.upper()}): {doc.page_content}"
-            )
+            enhanced_content = f"CHART/GRAPH DATA ({chart_type.upper()}): {doc.page_content}"
         elif "chart" in doc.page_content.lower() or "graph" in doc.page_content.lower():
             enhanced_content = f"CHART/GRAPH DATA: {doc.page_content}"
         else:
@@ -365,9 +352,7 @@ def initialize_advanced_pdf_vector_store(
     pdfs_dir: Path, persistent_directory: Path
 ) -> None | Chroma | Literal["EXISTS"]:
     """Initialize an advanced vector store from PDF documents with complex content."""
-    logger.info(
-        msg="======== Starting Advanced PDF RAG With Multimodal Content ========"
-    )
+    logger.info(msg="======== Starting Advanced PDF RAG With Multimodal Content ========")
     logger.info(msg=f"PDFs Directory: {pdfs_dir}")
     logger.info(msg=f"Persistent Directory: {persistent_directory}")
 
@@ -378,9 +363,7 @@ def initialize_advanced_pdf_vector_store(
 
     # Check if PDFs directory exists
     if not pdfs_dir.exists():
-        logger.error(
-            msg=f"The directory '{pdfs_dir}' does not exist. Please check the path."
-        )
+        logger.error(msg=f"The directory '{pdfs_dir}' does not exist. Please check the path.")
         return None
 
     logger.info(msg="Initializing new advanced vector store...")
@@ -441,9 +424,7 @@ def extract_charts_and_graphs(pdf_path: str) -> List[Document]:
 
                         if chart_analysis["is_chart"]:
                             # Extract chart data and description
-                            chart_description = generate_chart_description(
-                                img_pil, chart_analysis
-                            )
+                            chart_description = generate_chart_description(img_pil, chart_analysis)
 
                             documents.append(
                                 Document(
@@ -497,9 +478,7 @@ def analyze_chart_content(img_array: np.ndarray, img_pil: Image.Image) -> dict:
         lines = cv2.HoughLines(edges, 1, np.pi / 180, threshold=100)
 
         # Count unique colors (charts often have distinct colors)
-        unique_colors = len(
-            np.unique(img_array.reshape(-1, img_array.shape[-1]), axis=0)
-        )
+        unique_colors = len(np.unique(img_array.reshape(-1, img_array.shape[-1]), axis=0))
         analysis["color_count"] = unique_colors
 
         # Detect if it's likely a chart based on features
@@ -557,11 +536,7 @@ def determine_chart_type(img_array: np.ndarray, ocr_text: str) -> str:
         return "histogram"
 
     # Visual-based detection (simplified)
-    gray = (
-        cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-        if len(img_array.shape) == 3
-        else img_array
-    )
+    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY) if len(img_array.shape) == 3 else img_array
 
     # Detect circular shapes (pie charts)
     circles = cv2.HoughCircles(
@@ -682,13 +657,9 @@ def generate_chart_description(img_pil: Image.Image, chart_analysis: dict) -> st
             description_parts.append(f"TITLE: {potential_title}")
 
         # Other labels
-        labels = [
-            line for line in text_lines[1:] if len(line) > 1 and not line.isdigit()
-        ]
+        labels = [line for line in text_lines[1:] if len(line) > 1 and not line.isdigit()]
         if labels:
-            description_parts.append(
-                f"LABELS: {', '.join(labels[:5])}"
-            )  # Limit to first 5 labels
+            description_parts.append(f"LABELS: {', '.join(labels[:5])}")  # Limit to first 5 labels
 
     # Chart features
     features = []
@@ -765,9 +736,7 @@ def load_pdf_metadata(persistent_directory: Path) -> dict:
         return json.load(f)
 
 
-def detect_pdf_changes(
-    pdfs_dir: Path, persistent_directory: Path
-) -> Tuple[List[str], List[str]]:
+def detect_pdf_changes(pdfs_dir: Path, persistent_directory: Path) -> Tuple[List[str], List[str]]:
     """
     Detect changes in PDF files.
 
@@ -879,9 +848,7 @@ def update_vector_store(
                     all_docs = docs + ocr_docs + chart_docs
 
                     for doc in all_docs:
-                        doc.metadata.update(
-                            {"source": added_file, "processing_type": "advanced"}
-                        )
+                        doc.metadata.update({"source": added_file, "processing_type": "advanced"})
                         new_documents.append(doc)
 
                     logger.info(f"Processed new/modified file: {added_file}")
@@ -944,9 +911,7 @@ def generate_sample_questions(db: Chroma, num_questions: int = 5) -> List[str]:
                 matches = re.findall(pattern, doc.page_content)
                 for match in matches:
                     if isinstance(match, tuple):
-                        match = (
-                            match[0] if match[0] else match[1] if len(match) > 1 else ""
-                        )
+                        match = match[0] if match[0] else match[1] if len(match) > 1 else ""
                     if match and len(match) > 3:
                         keywords.add(match)
 
@@ -960,9 +925,7 @@ def generate_sample_questions(db: Chroma, num_questions: int = 5) -> List[str]:
             "Describe the {} architecture",
         ]
 
-        keyword_list = list(keywords)[
-            : num_questions * 2
-        ]  # Get more keywords than needed
+        keyword_list = list(keywords)[: num_questions * 2]  # Get more keywords than needed
 
         for i, keyword in enumerate(keyword_list):
             if len(questions) >= num_questions:
@@ -998,9 +961,7 @@ def main() -> None:
     )
 
     if result == "EXISTS":
-        logger.info(
-            msg="Advanced PDF Vector store already exists. Standalone execution complete."
-        )
+        logger.info(msg="Advanced PDF Vector store already exists. Standalone execution complete.")
     elif result is not None:
         logger.info(msg="Advanced PDF Vector store initialization complete.")
     else:
@@ -1010,4 +971,3 @@ def main() -> None:
 # Main entry point
 if __name__ == "__main__":
     main()
-

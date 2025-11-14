@@ -5,7 +5,7 @@ description = "Advanced RAG-based ReAct Agent with PDF processing, OCR, and mult
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "SystemSolution21", email = "systemsolution21@gmail.com" }
 ]
 license = { text = "MIT" }
 keywords = ["langchain", "rag", "react-agent", "pdf", "ocr", "llm"]

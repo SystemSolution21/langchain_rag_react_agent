@@ -39,6 +39,10 @@ from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
 from pydantic import BaseModel, Field
+from rich.console import Console
+from rich.markdown import Markdown
+
+from langchain_rag_react_agent.config import get_project_root
 
 # Import custom modules
 from langchain_rag_react_agent.rag import (
@@ -46,12 +50,10 @@ from langchain_rag_react_agent.rag import (
     initialize_advanced_pdf_vector_store,
     update_vector_store,
 )
-from rich.console import Console
-from rich.markdown import Markdown
 from langchain_rag_react_agent.utils.logger import ReActAgentLogger
 
 # ==================== Setup PDFs and database directories===================
-from langchain_rag_react_agent.config import get_project_root
+
 project_root = get_project_root()
 pdfs_dir: Path = project_root / "pdfs"
 db_dir: Path = project_root / "db"
@@ -62,9 +64,7 @@ persistent_directory: Path = db_dir / store_name
 module_path: Path = Path(__file__).resolve()
 logger: Logger = ReActAgentLogger.get_logger(module_name=module_path.name)
 # Log application startup
-logger.info(
-    msg="========= Starting ReAct Agent with RAG PDF Advanced Application =========="
-)
+logger.info(msg="========= Starting ReAct Agent with RAG PDF Advanced Application ==========")
 
 # ==================== Setup RAG ====================
 # Load environment variables
@@ -217,8 +217,8 @@ Observation: the result of the action
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
 
-IMPORTANT: When the tool returns an answer with "📚 Sources:" section, 
-you MUST include the entire sources section in your Final Answer exactly as provided. 
+IMPORTANT: When the tool returns an answer with "📚 Sources:" section,
+you MUST include the entire sources section in your Final Answer exactly as provided.
 Do not summarize or remove the source citations.
 
 Begin!
@@ -227,9 +227,7 @@ Question: {input}
 Thought:{agent_scratchpad}
 """
 
-prompt_template: PromptTemplate = PromptTemplate.from_template(
-    template=react_prompt_template
-)
+prompt_template: PromptTemplate = PromptTemplate.from_template(template=react_prompt_template)
 
 
 # ==================== Pydantic Models for Structured Output ====================
@@ -261,9 +259,7 @@ class RAGResponse(BaseModel):
         for i, src in enumerate(self.sources, 1):
             page_info = f"Page {src.page}" if src.page != "N/A" else "N/A"
             # Use Markdown list format (- or *) for proper indentation
-            response_text += (
-                f"- **[{i}]** `{src.file}` ({page_info}) - *Type: {src.type}*\n"
-            )
+            response_text += f"- **[{i}]** `{src.file}` ({page_info}) - *Type: {src.type}*\n"
 
         return response_text
 
@@ -345,9 +341,7 @@ async def main() -> None:
     The loop can be exited by typing 'exit', or by sending a
     KeyboardInterrupt (Ctrl+C) or EOFError (Ctrl+D).
     """
-    print(
-        "\nStart ReAct Agent with PDF RAG context chatting! Type 'exit' to end the conversation."
-    )
+    print("\nStart ReAct Agent with PDF RAG context chatting! Type 'exit' to end the conversation.")
 
     # Initialize chat history
     chat_history: list[BaseMessage] = []
@@ -367,9 +361,7 @@ async def main() -> None:
                 break
 
             # Process user query through agent executor
-            logger.info(
-                msg="Processing user query through ReAct Agent with PDF RAG context..."
-            )
+            logger.info(msg="Processing user query through ReAct Agent with PDF RAG context...")
             response: Any = await agent_executor.ainvoke(
                 input={"input": query, "chat_history": chat_history}
             )
