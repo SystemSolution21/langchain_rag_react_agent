@@ -11,11 +11,13 @@ Get up and running with LangChain RAG React Agent in 5 minutes!
 ## 🎯 Fastest Path: Docker Compose with Local Ollama
 
 ### Step 1: Navigate to Project
+
 ```bash
 cd C:\Users\rs258\MyAI\LangChain\langchain_rag_react_agent
 ```
 
 ### Step 2: Configure Environment
+
 ```bash
 # Copy the example environment file
 copy .env.example .env
@@ -25,6 +27,7 @@ notepad .env
 ```
 
 ### Step 3: Start Services
+
 ```bash
 # Start both app and Ollama
 docker-compose --profile local up -d
@@ -34,6 +37,7 @@ docker-compose ps
 ```
 
 ### Step 4: Download Ollama Model (First Time Only)
+
 ```bash
 # Pull the default model (llama3.2:3b - ~2GB)
 docker exec langchain-ollama ollama pull llama3.2:3b
@@ -42,7 +46,8 @@ docker exec langchain-ollama ollama pull llama3.2:3b
 docker exec langchain-ollama ollama pull llama3.2:1b
 ```
 
-### Step 5: Run the Agent!
+### Step 5: Run the Agent
+
 ```bash
 # Interactive mode
 docker-compose exec app python -m langchain_rag_react_agent.agent
@@ -53,7 +58,8 @@ docker-compose exec app python -m langchain_rag_react_agent.agent
 ```
 
 ### Step 6: Ask Questions
-```
+
+```　Example Conversation:
 You: What are the main topics in the Recurrent Neural Network PDF?
 AI: Based on the PDF document, the main topics include...
 
@@ -68,16 +74,19 @@ You: exit
 If you already have Ollama running on your machine:
 
 ### Step 1: Update .env
+
 ```env
 OLLAMA_BASE_URL=http://host.docker.internal:11434
 ```
 
 ### Step 2: Start App Only
+
 ```bash
 docker-compose up -d
 ```
 
 ### Step 3: Run
+
 ```bash
 docker-compose exec app python -m langchain_rag_react_agent.agent
 ```
@@ -85,6 +94,7 @@ docker-compose exec app python -m langchain_rag_react_agent.agent
 ## 💻 Alternative: Local Development (No Docker)
 
 ### Step 1: Install Dependencies
+
 ```bash
 # Install uv if not already installed
 pip install uv
@@ -94,6 +104,7 @@ uv sync
 ```
 
 ### Step 2: Install System Dependencies
+
 ```bash
 # Windows (using Chocolatey)
 choco install tesseract poppler
@@ -104,17 +115,20 @@ choco install tesseract poppler
 ```
 
 ### Step 3: Pre-download Models (Recommended)
+
 ```bash
 python scripts/setup_models.py
 ```
 
 ### Step 4: Configure Environment
+
 ```bash
 copy .env.example .env
 # Edit OLLAMA_BASE_URL=http://localhost:11434
 ```
 
 ### Step 5: Run
+
 ```bash
 python -m langchain_rag_react_agent.agent
 ```
@@ -131,6 +145,7 @@ copy "C:\path\to\your\document.pdf" pdfs\
 ## 🔧 Useful Commands
 
 ### Docker Management
+
 ```bash
 # View logs
 docker-compose logs -f app
@@ -146,6 +161,7 @@ docker-compose build
 ```
 
 ### Ollama Management
+
 ```bash
 # List available models
 docker exec langchain-ollama ollama list
@@ -160,6 +176,7 @@ docker exec langchain-ollama ollama pull gemma2:2b
 ## ❓ Troubleshooting
 
 ### "Connection refused" to Ollama
+
 ```bash
 # Check Ollama is running
 docker ps | grep ollama
@@ -169,6 +186,7 @@ docker-compose restart ollama
 ```
 
 ### Out of Memory
+
 ```bash
 # Use smaller model
 docker exec langchain-ollama ollama pull llama3.2:1b
@@ -178,6 +196,7 @@ docker exec langchain-ollama ollama pull llama3.2:1b
 ```
 
 ### PDF Not Processing
+
 - Check PDF is in `pdfs/` directory
 - Ensure PDF is not password-protected
 - Check logs: `docker-compose logs app`
@@ -190,6 +209,3 @@ docker exec langchain-ollama ollama pull llama3.2:1b
 - Customize the agent prompts in `src/langchain_rag_react_agent/agent.py`
 
 ---
-
-**Happy RAG-ing! 🚀**
-
