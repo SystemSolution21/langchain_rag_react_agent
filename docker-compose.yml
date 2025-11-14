@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # Ollama Service (Profile: local)
+  # Run with: docker-compose --profile local up
+  ollama:
+    image: ollama/ollama:latest
+    profiles:
+      - local
+    container_name: langchain-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    # Uncomment for GPU support (NVIDIA)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # LangChain RAG React Agent Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: langchain-rag-agent
+    ports:
+      - "8000:8000"  # For future API/web interface
+    volumes:
+      # Mount directories for persistence
+      - ./pdfs:/app/pdfs
+      - ./db:/app/db
+      - ./logs:/app/logs
+      # Mount .env file
+      - ./.env:/app/.env:ro
+    environment:
+      # Project paths
+      - PROJECT_ROOT=/app
+      - PDFS_DIR=/app/pdfs
+      - DB_DIR=/app/db
+      - LOGS_DIR=/app/logs
+      # Ollama configuration (use service name for local profile)
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://ollama:11434}
+      - OLLAMA_LLM=${OLLAMA_LLM:-llama3.2:3b}
+      # Optional: OpenAI/Anthropic for production
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    depends_on:
+      ollama:
+        condition: service_healthy
+        required: false  # Only required when using local profile
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  default:
+    name: langchain-network
+
