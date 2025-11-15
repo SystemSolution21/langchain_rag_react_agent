@@ -22,6 +22,7 @@ WORKDIR /app
 
 # Copy dependency files
 COPY pyproject.toml ./
+COPY README.md ./
 
 # Install Python dependencies using uv
 RUN uv pip install --system --no-cache -e .
@@ -77,6 +78,10 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Default command
 CMD ["python", "-m", "langchain_rag_react_agent.agent"]
+
+
+
+
 
 
 
