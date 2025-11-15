@@ -68,8 +68,8 @@ RUN mkdir -p /app/pdfs /app/db /app/logs && \
 
 # Initialize git repository for version control
 RUN git init && \
-    git config --global user.email "docker@langchain-rag.local" && \
-    git config --global user.name "Docker Container"
+    git config --global user.email "systemsolution21@gmail.com" && \
+    git config --global user.name "SystemSolution21"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
