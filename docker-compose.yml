@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Ollama Service (Profile: local)
   # Run with: docker-compose --profile local up
@@ -37,7 +35,7 @@ services:
       dockerfile: Dockerfile
     container_name: langchain-rag-agent
     ports:
-      - "8000:8000"  # For future API/web interface
+      - "8000:8000" # For future API/web interface
     volumes:
       # Mount directories for persistence
       - ./pdfs:/app/pdfs
@@ -60,7 +58,7 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
-        required: false  # Only required when using local profile
+        required: false # Only required when using local profile
     stdin_open: true
     tty: true
     restart: unless-stopped
@@ -78,4 +76,3 @@ volumes:
 networks:
   default:
     name: langchain-network
-
