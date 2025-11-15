@@ -14,7 +14,7 @@ Advanced RAG-based ReAct Agent with PDF processing, OCR, table extraction, and m
 
 ## 🏗️ Architecture
 
-```
+```project
 langchain_rag_react_agent/
 ├── src/langchain_rag_react_agent/  # Main package
 │   ├── agent.py                     # ReAct agent application
