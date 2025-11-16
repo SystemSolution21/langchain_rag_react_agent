@@ -19,8 +19,8 @@ from typing import List, Literal, Optional, Tuple
 
 # Import necessary libraries
 import cv2
-import fitz
 import numpy as np
+import pymupdf as fitz
 import pytesseract
 
 # Import langchain modules
