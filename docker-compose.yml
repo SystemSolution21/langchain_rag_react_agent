@@ -1,5 +1,9 @@
 services:
   # Ollama Service (Profile: local)
+  # Use this profile for:
+  #   - New team members without local Ollama
+  #   - CI/CD pipelines
+  #   - Production deployments
   # Run with: docker-compose --profile local up
   ollama:
     image: ollama/ollama:latest
@@ -37,6 +41,8 @@ services:
     ports:
       - "8000:8000" # For future API/web interface
     volumes:
+      # Mount source code for live development (no rebuild needed for code changes)
+      - ./src:/app/src
       # Mount directories for persistence
       - ./pdfs:/app/pdfs
       - ./db:/app/db

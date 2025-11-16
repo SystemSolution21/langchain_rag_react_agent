@@ -54,10 +54,12 @@ COPY pdfs/ ./pdfs/
 COPY db/ ./db/
 COPY logs/ ./logs/
 COPY pyproject.toml ./
+COPY README.md ./
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/src \
     PROJECT_ROOT=/app \
     PDFS_DIR=/app/pdfs \
     DB_DIR=/app/db \

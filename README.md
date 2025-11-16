@@ -95,6 +95,12 @@ langchain-rag-agent
 
 ## 📋 Prerequisites
 
+### For Docker (Recommended for Teams)
+
+- **Docker Engine 20.10+** and **Docker Compose**
+- **That's it!** No need to install Python, Ollama, or any dependencies locally
+- See [DEVELOPMENT.md](DEVELOPMENT.md) for team development workflow
+
 ### For Docker
 
 - Docker Engine 20.10+
