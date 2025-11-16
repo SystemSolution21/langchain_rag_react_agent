@@ -36,16 +36,9 @@ source .venv/bin/activate
 ## Step 2: Install Dependencies
 
 ```bash
-# Install all dependencies in editable mode
+# Install all dependencies in editable mode(changes reflect immediately)
 uv pip install -e .
-
-# This will install:
-# - langchain 0.3.x (NOT 1.0.x - avoiding breaking changes)
-# - All other dependencies from pyproject.toml
-# - Your package in editable mode (changes reflect immediately)
 ```
-
-**Note:** We've pinned `langchain<1.0.0` to avoid breaking changes. Your code will work with both Python 3.11 and 3.13.
 
 ---
 
@@ -75,6 +68,7 @@ docker-compose up -d --build
 ```
 
 **Benefits:**
+
 - ✅ Share models across projects
 - ✅ Faster performance
 - ✅ Use Ollama CLI for testing
@@ -96,6 +90,7 @@ docker exec langchain-ollama ollama pull llama3.2:3b
 ```
 
 **Benefits:**
+
 - ✅ No local Ollama installation needed
 - ✅ Consistent with team members
 - ✅ Easy cleanup
@@ -222,4 +217,3 @@ Your code is tested on Python 3.11 and should work on 3.13 with the same depende
 5. 🚀 Start developing!
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for team development workflow and best practices.
-
