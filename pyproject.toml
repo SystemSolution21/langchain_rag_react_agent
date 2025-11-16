@@ -37,6 +37,8 @@ dependencies = [
     "rich>=14.0.0",
     "numpy>=1.26.0",
     "pillow>=10.0.0",
+    "pi-heif>=1.1.1",
+    "unstructured-inference>=1.1.1",
 ]
 
 [project.optional-dependencies]
