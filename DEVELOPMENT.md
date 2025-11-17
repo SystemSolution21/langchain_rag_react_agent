@@ -262,7 +262,7 @@ docker-compose --profile local up -d
 
 ## Architecture
 
-```
+```architecture
 Local Machine                    Docker Container
 ┌─────────────────┐             ┌──────────────────┐
 │ IDE (VSCode)    │             │ Python Runtime   │
