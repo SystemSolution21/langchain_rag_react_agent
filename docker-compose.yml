@@ -5,6 +5,10 @@ services:
   #   - CI/CD pipelines
   #   - Production deployments
   # Run with: docker-compose --profile local up
+  #
+  # If you have Ollama installed locally on your PC:
+  #   - Use: docker-compose up -d (without --profile local)
+  #   - Set OLLAMA_BASE_URL=http://host.docker.internal:11434 in .env
   ollama:
     image: ollama/ollama:latest
     profiles:
@@ -61,10 +65,9 @@ services:
       # Optional: OpenAI/Anthropic for production
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-    depends_on:
-      ollama:
-        condition: service_healthy
-        required: false # Only required when using local profile
+    # Add extra_hosts to allow container to access host machine's Ollama
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     stdin_open: true
     tty: true
     restart: unless-stopped
@@ -74,6 +77,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    profiles:
+      - "" # Default profile (runs without --profile flag)
 
 volumes:
   ollama_data:
