@@ -72,6 +72,7 @@ load_dotenv()
 
 # Get environment variables
 ollama_llm: str | None = os.getenv(key="OLLAMA_LLM", default="gemma3:4b")
+ollama_base_url: str | None = os.getenv(key="OLLAMA_BASE_URL", default="http://localhost:11434")
 
 # Define embeddings models - MUST match the embeddings used in rag_pdf_advanced.py
 # Using BAAI/bge-large-en-v1.5 for better semantic understanding (1024 dimensions)
@@ -81,8 +82,14 @@ embeddings = HuggingFaceEmbeddings(
     encode_kwargs={"normalize_embeddings": True},
 )
 
-# Define LLM
-llm = ChatOllama(model=ollama_llm)
+# Define LLM with temperature=0 for more deterministic/consistent responses
+# Lower temperature helps with format adherence in ReAct agents
+llm = ChatOllama(
+    model=ollama_llm,
+    base_url=ollama_base_url,
+    temperature=0,
+    stop=["Observation:"],  # Stop generating after seeing "Observation:" to prevent loops
+)
 
 # Load vector store and create retriever
 try:
@@ -145,10 +152,14 @@ except Exception as e:
 
 # Contextualize question prompt
 contextualize_q_system_prompt = """
-Given a chat history and the latest user question, this prompt helps the AI reformulate
-the question to be standalone. The reformulated question should be understandable
-without relying on prior chat context. The AI should not answer the question—only
-rephrase it if necessary, or return it unchanged if already standalone.
+Given a chat history and the latest user question, reformulate the question to be standalone
+if it references previous context. If the question is already standalone, return it as-is.
+DO NOT answer the question - only rephrase it for clarity.
+
+Examples:
+- "What about that?" -> "What about [topic from chat history]?"
+- "How does it work?" -> "How does [subject from chat history] work?"
+- "Tell me more" -> "Tell me more about [topic from chat history]"
 """
 
 # Create contextualize question prompt template
@@ -169,14 +180,18 @@ history_aware_retriever: VectorStoreRetriever = create_history_aware_retriever(
 
 # Answer question prompt
 qa_system_prompt = """
-You are an assistant for question-answering tasks.
-Use the following pieces of retrieved context to answer the question.
-If you don't know the answer, just say that you don't know.
-Keep the answer realistic based on the context. Do not hallucinate.
+You are a helpful assistant for question-answering tasks.
+Use ONLY the following retrieved context to answer the question.
 
-When answering, provide specific information from the context and reference the sources.
-The sources will be automatically appended to your answer.
-\n\n
+INSTRUCTIONS:
+1. Answer directly and concisely based on the provided context.
+2. If the context contains relevant information, provide a clear answer.
+3. If the context does NOT contain the answer, simply say "I don't know based on the provided documents."
+4. DO NOT make up information or use knowledge outside the provided context.
+5. DO NOT ask follow-up questions or suggest what the user should ask.
+6. The sources will be automatically appended to your answer - do not mention them in your response.
+
+Context:
 {context}
 """
 
@@ -205,20 +220,39 @@ Answer the following questions as best you can. You have access to the following
 
 {tools}
 
-Use the following format:
+Use the following format EXACTLY - this is MANDATORY:
 
 Question: the input question you must answer
-Thought: you should always think about what to do
-Action: the action to take, should be one of [{tool_names}]
-Action Input: the input to the action
+Thought: I need to use the Answer Question tool to find the answer
+Action: Answer Question
+Action Input: the exact question from the user
 Observation: the result of the action
-... (this Thought/Action/Action Input/Observation can repeat N times)
 Thought: I now know the final answer
 Final Answer: the final answer to the original input question
 
-IMPORTANT: When the tool returns an answer with "📚 Sources:" section,
-you MUST include the entire sources section in your Final Answer exactly as provided.
-Do not summarize or remove the source citations.
+CRITICAL RULES:
+1. You MUST call "Answer Question" tool EXACTLY ONCE.
+2. After receiving the Observation, you MUST immediately write EXACTLY this: "Thought: I now know the final answer"
+3. Then write "Final Answer:" followed by the complete Observation text.
+4. NEVER write "Action:" after seeing an Observation - only write "Thought: I now know the final answer".
+5. Copy the ENTIRE Observation (including "📚 Sources:" section) to your Final Answer.
+6. If Observation says "I don't know", that IS a valid final answer - provide it and STOP.
+
+EXAMPLE:
+Question: What is X?
+Thought: I need to use the Answer Question tool to find the answer
+Action: Answer Question
+Action Input: What is X?
+Observation: I don't know based on the provided documents.
+
+📚 Sources:
+- [1] doc.pdf (Page 1) - Type: text
+
+Thought: I now know the final answer
+Final Answer: I don't know based on the provided documents.
+
+📚 Sources:
+- [1] doc.pdf (Page 1) - Type: text
 
 Begin!
 
@@ -325,7 +359,12 @@ agent: Runnable[Any, Any] = create_react_agent(
 
 # Create agent executor
 agent_executor: AgentExecutor = AgentExecutor(
-    agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=2,  # Allow only 1 tool call + 1 final answer
+    early_stopping_method="force",  # Force stop when max iterations reached
 )
 
 
