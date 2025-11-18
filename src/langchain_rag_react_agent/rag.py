@@ -31,12 +31,10 @@ from langchain_core.documents.base import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 from PIL import Image
 
-from langchain_rag_react_agent.config import get_project_root
+from langchain_rag_react_agent.config import get_db_dir, get_pdfs_dir
 
 # Import custom modules
 from langchain_rag_react_agent.utils.logger import ReActAgentLogger
-
-project_root = get_project_root()
 
 # Module path
 module_path: Path = Path(__file__).resolve()
@@ -45,10 +43,10 @@ module_path: Path = Path(__file__).resolve()
 logger: Logger = ReActAgentLogger.get_logger(module_name=module_path.name)
 
 # Define PDFs and database directories paths
-pdfs_dir: Path = project_root / "pdfs"
-db_dir: Path = project_root / "db"
+pdfs_dir_path: Path = get_pdfs_dir()
+db_dir_path: Path = get_db_dir()
 store_name: str = "chroma_db_pdf_advanced"
-persistent_directory: Path = db_dir / store_name
+persistent_directory: Path = db_dir_path / store_name
 
 
 def load_pdf_documents_advanced(pdfs_dir: Path) -> List[Document]:
@@ -957,7 +955,7 @@ def generate_sample_questions(db: Chroma, num_questions: int = 5) -> List[str]:
 def main() -> None:
     """Main function for standalone execution of the advanced PDF RAG initialization."""
     result: None | Chroma | Literal["EXISTS"] = initialize_advanced_pdf_vector_store(
-        pdfs_dir=pdfs_dir, persistent_directory=persistent_directory
+        pdfs_dir=pdfs_dir_path, persistent_directory=persistent_directory
     )
 
     if result == "EXISTS":
