@@ -17,6 +17,7 @@ Advanced RAG-based ReAct Agent with PDF processing, OCR, table extraction, and m
 ```project
 langchain_rag_react_agent/
 ├── src/langchain_rag_react_agent/  # Main package
+│   ├── __init__.py                  # Package initialization
 │   ├── agent.py                     # ReAct agent application
 │   ├── rag.py                       # RAG processing logic
 │   ├── config.py                    # Configuration management
@@ -25,8 +26,31 @@ langchain_rag_react_agent/
 ├── scripts/                         # Helper scripts
 │   └── setup_models.py              # Pre-download AI models
 ├── pdfs/                            # PDF documents directory
+│   └── .gitkeep                     # Keep directory in Git
 ├── db/                              # Vector store database
+|   ├── .gitkeep                     # Keep directory in Git
+│   └── chroma_db_pdf_advanced/      # Chroma DB directory
 ├── logs/                            # Application logs
+│   ├── agent_tools.log              # Application log file
+|   └── .gitkeep                     # Keep directory in Git
+├── tests/                           # pytest tests
+│   ├── __init__.py                  # Test package initialization
+│   ├── conftest.py                  # Shared fixtures and test configuration
+│   ├── test_config.py               # Tests for configuration module
+│   ├── test_logger.py               # Tests for logging module
+│   ├── test_rag.py                  # Tests for RAG processing module
+│   └── test_agent.py                # Tests for agent module
+├── .env                             # Environment variables
+├── .env.example                     # Example environment file
+├── README.md                        # Project documentation
+├── LICENSE                          # Project license
+├── .dockerignore                    # Docker build ignore file
+├── .gitignore                       # Git ignore file
+├── .uv.lock                         # Optional: uv lock file
+├── DeVELOPMENT.md                   # Local dev setup guide
+├── DOCKER_COMMANDS.md               # Docker commands reference
+├── LOCAL_SETUP.md                   # Local dev setup guide
+|── pytest.ini                       # pytest configuration
 ├── Dockerfile                       # Container definition
 ├── docker-compose.yml               # Multi-service orchestration
 └── pyproject.toml                   # Project dependencies
