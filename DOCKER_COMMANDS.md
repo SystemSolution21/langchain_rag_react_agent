@@ -4,7 +4,6 @@ Complete guide for managing this LangChain RAG React Agent application and gener
 
 ## 📋 Table of Contents
 
-- [Quick Start](#quick-start)
 - [Container Management](#container-management)
 - [Image Management](#image-management)
 - [Logs & Debugging](#logs--debugging)
@@ -15,24 +14,6 @@ Complete guide for managing this LangChain RAG React Agent application and gener
 
 ---
 
-## 🚀 Quick Start
-
-### First Time Setup
-
-```bash
-# 1. Copy environment file
-cp .env.example .env
-
-# 2. Edit .env with your settings
-# Set OLLAMA_BASE_URL based on your setup
-
-# 3. Build and start (with containerized Ollama)
-docker-compose --profile local up -d --build
-
-# OR start without containerized Ollama (using local Ollama)
-docker-compose up -d --build
-```
-
 ### Daily Usage (Manual Start - Saves Memory)
 
 ```bash
@@ -42,13 +23,13 @@ docker-compose start
 # Stop containers (frees memory, keeps containers)
 docker-compose stop
 
-# Run the agent
-docker-compose exec app python -m langchain_rag_react_agent.agent
+# Run the app
+docker-compose exec app python -m <script_name>
 ```
 
 ---
 
-## 🔧 Container Management
+## Container Management
 
 ### Starting Containers
 
@@ -58,6 +39,9 @@ docker-compose start
 
 # Create and start containers(docker-compose.yml changed)
 docker-compose up -d
+
+# Force recreate containers (apply docker-compose.yml changes)
+docker-compose up -d --force-recreate
 
 # Create and start with build(Dockerfile or dependencies changed)
 docker-compose up -d --build
@@ -94,8 +78,6 @@ docker-compose restart
 # Restart specific service
 docker-compose restart app
 
-# Force recreate containers (apply docker-compose.yml changes)
-docker-compose up -d --force-recreate
 ```
 
 ### Container Status
@@ -114,12 +96,12 @@ docker ps -a
 docker stats
 
 # Inspect container details
-docker inspect langchain-rag-agent
+docker inspect <container_name>
 ```
 
 ---
 
-## 🖼️ Image Management
+## Image Management
 
 ### Building Images
 
@@ -153,7 +135,7 @@ docker images -f "dangling=true"
 docker system df
 
 # Check which containers use an image (including stopped)
-docker ps -a --filter ancestor=langchain_rag_react_agent-app:latest
+docker ps -a --filter ancestor=<image_name>
 
 # List all containers with their images and status
 docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
@@ -163,7 +145,7 @@ docker ps -a --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
 
 ```bash
 # Remove specific image
-docker rmi langchain_rag_react_agent-app:latest
+docker rmi <image_name>
 
 # Remove dangling images (<none>)
 docker image prune -f
@@ -175,12 +157,12 @@ docker image prune -a -f
 docker rmi abc123def456
 
 # Force remove image (even if containers exist)
-docker rmi -f langchain_rag_react_agent-app:latest
+docker rmi -f <image_name>
 ```
 
 ---
 
-## 📝 Logs & Debugging
+## Logs & Debugging
 
 ### Viewing Logs
 
@@ -201,10 +183,10 @@ docker-compose logs --tail=100 app
 docker-compose logs -f -t app
 
 # View logs from specific container
-docker logs langchain-rag-agent
+docker logs <container_name>
 
 # Follow container logs
-docker logs -f langchain-rag-agent
+docker logs -f <container_name>
 ```
 
 ### Accessing Containers
@@ -236,19 +218,19 @@ docker-compose run --rm app python --version
 
 ```bash
 # Check container health
-docker inspect --format='{{.State.Health.Status}}' langchain-rag-agent
+docker inspect --format='{{.State.Health.Status}}' <container_name>
 
 # View container processes
 docker-compose top
 
 # View container resource usage
-docker stats langchain-rag-agent
+docker stats <container_name>
 
 # Inspect container configuration
-docker inspect langchain-rag-agent
+docker inspect <container_name>
 
 # Check restart policy
-docker inspect langchain-rag-agent --format='{{.HostConfig.RestartPolicy.Name}}'
+docker inspect <container_name> --format='{{.HostConfig.RestartPolicy.Name}}'
 
 # View container environment variables
 docker-compose exec app env
@@ -256,7 +238,7 @@ docker-compose exec app env
 
 ---
 
-## 🧹 Cleanup & Maintenance
+## Cleanup & Maintenance
 
 ### Remove Containers
 
@@ -265,10 +247,10 @@ docker-compose exec app env
 docker container prune -f
 
 # Remove specific container
-docker rm langchain-rag-agent
+docker rm <container_name>
 
 # Force remove running container
-docker rm -f langchain-rag-agent
+docker rm -f <container_name>
 
 # Remove all stopped containers
 docker rm $(docker ps -a -q)
@@ -277,14 +259,20 @@ docker rm $(docker ps -a -q)
 ### Remove Images
 
 ```bash
-# Remove dangling images only
+# Remove specific image
+docker rmi <image_name>
+
+# Remove dangling images (<none>)
 docker image prune -f
 
 # Remove all unused images
 docker image prune -a -f
 
-# Remove specific image
-docker rmi langchain_rag_react_agent-app:latest
+# Remove specific image by ID
+docker rmi abc123def456
+
+# Force remove image (even if containers exist)
+docker rmi -f <image_name>
 ```
 
 ### Remove Volumes
@@ -344,7 +332,7 @@ docker system prune -f
 
 ---
 
-## 🦙 Ollama Management
+## Ollama Management
 
 ### Using Containerized Ollama
 
@@ -391,7 +379,7 @@ docker-compose exec app curl http://host.docker.internal:11434/api/tags
 
 ---
 
-## 📊 Resource Monitoring
+## Resource Monitoring
 
 ### Memory & CPU Usage
 
@@ -400,7 +388,7 @@ docker-compose exec app curl http://host.docker.internal:11434/api/tags
 docker stats
 
 # Resource usage for specific container
-docker stats langchain-rag-agent
+docker stats <container_name>
 
 # One-time snapshot
 docker stats --no-stream
@@ -419,7 +407,7 @@ docker system df
 docker system df -v
 
 # Check specific image size
-docker images langchain_rag_react_agent-app
+docker images <image_name>
 
 # Check volume sizes
 docker volume ls
@@ -441,7 +429,7 @@ docker network inspect langchain-network --format='{{range .Containers}}{{.Name}
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -455,7 +443,7 @@ docker-compose logs app
 docker-compose ps
 
 # Inspect container
-docker inspect langchain-rag-agent
+docker inspect <container_name>
 
 # Try rebuilding
 docker-compose down
