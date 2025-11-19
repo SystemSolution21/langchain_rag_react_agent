@@ -22,8 +22,7 @@ def _get_path_from_env(env_var: str, default_path: Path) -> Path:
 
 def get_project_root() -> Path:
     """Get the project root directory."""
-    current_file: Path = Path(__file__).resolve()
-    default_root: Path = current_file.parent.parent.parent
+    default_root: Path = Path(__file__).resolve().parent.parent.parent
     return _get_path_from_env(env_var="PROJECT_ROOT", default_path=default_root)
 
 
