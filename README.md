@@ -98,6 +98,8 @@ docker-compose exec app python -m langchain_rag_react_agent.agent
 
 ### Option 2: Local Development
 
+Configure .env for local ollama with local app: `OLLAMA_BASE_URL=http://localhost:11434`
+
 ```bash
 # 1. Install dependencies with uv
 uv sync
