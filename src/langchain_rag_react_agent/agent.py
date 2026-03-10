@@ -38,7 +38,9 @@ from langchain_core.tools import Tool
 from langchain_core.vectorstores.base import VectorStoreRetriever
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_ollama import ChatOllama
-from pydantic import BaseModel, Field
+
+# from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field  # , SecretStr
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -70,9 +72,21 @@ logger.info(msg="========= Starting ReAct Agent with RAG PDF Advanced Applicatio
 # Load environment variables
 load_dotenv()
 
-# Get environment variables
+# Get Ollama environment variables
 ollama_llm: str | None = os.getenv(key="OLLAMA_LLM", default="gemma3:4b")
 ollama_base_url: str | None = os.getenv(key="OLLAMA_BASE_URL", default="http://localhost:11434")
+
+# Define Ollama LLM
+llm = ChatOllama(model=ollama_llm, base_url=ollama_base_url)
+
+# # Get OpenAI environment variables
+# openai_llm: str | None = os.getenv(key="OPENAI_LLM", default="gpt-4.1-nano")
+# openai_api_key: SecretStr | None = SecretStr(str(os.getenv(key="OPENAI_API_KEY", default=None)))
+# # Define OpenAI LLM
+# try:
+#     llm = ChatOpenAI(model=openai_llm, api_key=openai_api_key)
+# except Exception:
+#     raise ValueError("No LLM defined. Please set OPENAI_API_KEY.")
 
 # Define embeddings models - MUST match the embeddings used in rag_pdf_advanced.py
 # Using BAAI/bge-large-en-v1.5 for better semantic understanding (1024 dimensions)
@@ -82,8 +96,6 @@ embeddings = HuggingFaceEmbeddings(
     encode_kwargs={"normalize_embeddings": True},
 )
 
-# Define LLM
-llm = ChatOllama(model=ollama_llm, base_url=ollama_base_url)
 
 # Load vector store and create retriever
 try:
