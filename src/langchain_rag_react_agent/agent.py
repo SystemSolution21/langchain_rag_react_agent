@@ -339,7 +339,11 @@ agent: Runnable[Any, Any] = create_react_agent(
 
 # Create agent executor
 agent_executor: AgentExecutor = AgentExecutor(
-    agent=agent, tools=tools, verbose=True, handle_parsing_errors=True
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    handle_parsing_errors=True,
+    max_iterations=10,
 )
 
 
@@ -354,7 +358,7 @@ async def main() -> None:
     The loop can be exited by typing 'exit', or by sending a
     KeyboardInterrupt (Ctrl+C) or EOFError (Ctrl+D).
     """
-    print("\nStart ReAct Agent with PDF RAG context chatting! Type 'exit' to end the conversation.")
+    print("\nStart ReAct Agent with PDF RAG context chatting!")
 
     # Initialize chat history
     chat_history: list[BaseMessage] = []
@@ -362,10 +366,9 @@ async def main() -> None:
     while True:
         try:
             # User query
-            query: str = (await ainput("You: ")).strip()
+            query: str = (await ainput("Type 'exit' to end the conversation!\nYou: ")).strip()
 
             if not query:
-                print("Please ask a question!.")
                 continue
 
             if query.lower() == "exit":
