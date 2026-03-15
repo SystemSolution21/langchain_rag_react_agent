@@ -51,7 +51,7 @@ dev = [
 ]
 
 [project.scripts]
-langchain-rag-agent = "langchain_rag_react_agent.agent:main"
+langchain-rag-agent = "langchain_rag_react_agent.__main__:main"
 setup-models = "langchain_rag_react_agent.scripts.setup_models:main"
 
 [build-system]
@@ -78,4 +78,5 @@ python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
+
 
